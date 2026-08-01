@@ -10,7 +10,7 @@ Not a science tool.
 NASA's own [FIRMS fire map](https://firms.modaps.eosdis.nasa.gov/map/) does that properly.
 This exists because I had no idea how much of the planet is burning on an ordinary day, or that most of it is on purpose.
 
-Pair-built with Claude, credited as co-author in the commits. The idea and the picking-at-the-data were mine, most of the code was its.
+Pair-built with Claude, credited as co-author in the commits. The idea and the picking-at-the-data were mine. Most of the code wasn't.
 
 ## Running it
 
@@ -23,7 +23,9 @@ Python 3 and a browser, that's the whole stack.
 
 If the FIRMS feed is unreachable the page falls back to sample data and says so under the title.
 
-To deploy, pick either host; the repo carries both proxy variants (same 30 minute CDN cache):
+## Deploying
+
+The repo carries both proxy variants, same 30 minute CDN cache either way:
 
 - Cloudflare Pages: `npx wrangler pages deploy . --project-name worldburn` (uses `functions/api/fires.js`).
 - Vercel: `vercel` (uses `api/fires.js`).
@@ -49,10 +51,8 @@ So the split is now behavior, which is actually measurable:
 - Persistent: a 0.1° cell hot on 3+ consecutive days, or peaking over 150 MW.
 - Brief: everything else on land.
 - Over water: presumed gas flare. Same assumption NASA's own archive type field makes. Could just as well be a rig accident or a ship on fire.
-- Volcano markers: hardcoded list, not live eruption status.
 
-Consecutive days matter.
-The first behavior version counted any 3 detection days in the week, and in dense burning regions a cell collects several unrelated one-day burns, so 60% of the belt's "persistent" fires weren't persistent at all.
+Consecutive days matter: the first behavior version counted any 3 detection days in the week, and in dense burning regions a cell collects several unrelated one-day burns, so 60% of the belt's "persistent" fires weren't persistent at all.
 With the consecutive rule the belt sits around 19% persistent while the boreal north stays around 81%, which matches how those regions actually burn: above 50°N persistent nearly always means a real wildfire, in the belt it means a big front burn that held its ground for days.
 A brand-new wildfire also reads "brief" on day one until it persists.
 
