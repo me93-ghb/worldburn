@@ -91,7 +91,7 @@
   }
   .dot { width: 9px; height: 9px; border-radius: 50%; }
   .dot.fire { background: radial-gradient(circle at 40% 35%, #ffd27a, #ff6a00 55%, rgba(160,30,0,0)); }
-  .dot.burnt { background: radial-gradient(circle, #3a3a40, rgba(20,20,22,.1)); }
+  .dot.burnt { background: radial-gradient(circle, #4a4845, rgba(74,72,69,.15)); }
   .dot.flare { background: radial-gradient(circle at 40% 35%, #cfe4ff, #5b8fd6 55%, rgba(30,60,120,0)); }
   .dot.volcano { background: radial-gradient(circle at 40% 35%, #ff8a5e, #b3271e 60%, rgba(90,10,0,0)); }
 </style>
@@ -593,8 +593,9 @@ const FRAG = {
     float r = length(uv) * 2.;
     float n = fbm(uv * 3. + vSeed * 23. + vec2(uTime * .05, uTime * .025));
     float body = smoothstep(1., .12, r + n * .6 - .2);
-    vec3 col = mix(vec3(.012, .012, .015), vec3(.07, .068, .075), n);
-    gl_FragColor = vec4(col, body * .8 * (1. - vAge * .55) * vFade * edgeMask(r));
+    // smoke grey, lighter than the land underneath, or old burns read as holes
+    vec3 col = mix(vec3(.115, .11, .105), vec3(.225, .22, .21), n);
+    gl_FragColor = vec4(col, body * .6 * (1. - vAge * .55) * vFade * edgeMask(r));
   }`,
   fireB: NOISE + `
   void main() {
@@ -609,8 +610,8 @@ const FRAG = {
   burntB: NOISE + `
   void main() {
     float r = length(gl_PointCoord - .5) * 2.;
-    float a = smoothstep(1., .2, r) * .55 * (1. - vAge * .5);
-    gl_FragColor = vec4(vec3(.028, .027, .033), a * vFade);
+    float a = smoothstep(1., .2, r) * .5 * (1. - vAge * .5);
+    gl_FragColor = vec4(vec3(.20, .195, .185), a * vFade);
   }`,
   fireC: NOISE + `
   void main() {
@@ -626,9 +627,9 @@ const FRAG = {
   burntC: NOISE + `
   void main() {
     float r = length(gl_PointCoord - .5) * 2.;
-    float a = smoothstep(1., .25, r) * .7 * (1. - vAge * .4);
+    float a = smoothstep(1., .25, r) * .5 * (1. - vAge * .4);
     a += (hash(gl_FragCoord.xy * .71 + vSeed * 100.) - .5) * .016;
-    gl_FragColor = vec4(vec3(.008, .008, .012), a * vFade);
+    gl_FragColor = vec4(vec3(.175, .17, .165), a * vFade);
   }`,
 };
 
