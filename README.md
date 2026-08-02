@@ -2,6 +2,8 @@
 
 ![one full rotation, live data](demo.gif)
 
+*One full rotation of live data, captured straight from the page. Nothing is added on top: that is the site's own readout.*
+
 A dark 3D globe of every fire NASA's satellites can currently see.
 The last 24 hours burn as live embers, the rest of the week lingers as char.
 One dropdown filters what kind of burning you're looking at, the other switches rendering styles (embers is the best one).
