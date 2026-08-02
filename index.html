@@ -73,6 +73,8 @@
     border: 1px solid rgba(255,255,255,.08); }
   #frpbar .ticks { display: flex; justify-content: space-between; width: 190px; }
   #caveat { color: #566572; margin-top: 10px; }
+  /* stays in frame so the label travels with any screenshot or repost */
+  #disclosure { color: #6f7f8b; margin-top: 3px; }
   @media (max-width: 640px) {
     #title { top: 18px; left: 16px; right: 16px; }
     #title h1 { font-size: 12px; letter-spacing: .22em; }
@@ -131,6 +133,7 @@
   <div class="lrow"><i class="dot flare"></i> offshore heat &middot; presumed flare</div>
   <div class="lrow"><i class="dot volcano"></i> volcano marker (static)</div>
   <div id="caveat">persistence is measured, flares are presumed</div>
+  <div id="disclosure">stylised visualisation &middot; dots enlarged to be visible &middot; not a photograph</div>
 </div>
 
 <button id="aboutbtn">about &amp; sources</button>
@@ -474,6 +477,7 @@ async function loadFires(isLand) {
     // pass 1: parse + per-0.1°-cell persistence stats over the full 7 days
     const rows = [];
     const cells = new Map();
+    let window0 = Infinity, window1 = -Infinity; // data window, shown in the header
     for (let i = 1; i < lines.length; i++) {
       const f = lines[i].split(',');
       const conf = f[col.confidence];
@@ -487,7 +491,10 @@ async function loadFires(isLand) {
       const key = Math.round(lat * 10) + ',' + Math.round(lon * 10);
       let c = cells.get(key);
       if (!c) cells.set(key, c = { days: new Set(), maxFrp: 0 });
-      c.days.add(Date.UTC(y, mo - 1, d) / 864e5); if (frp > c.maxFrp) c.maxFrp = frp;
+      const day = Date.UTC(y, mo - 1, d) / 864e5;
+      if (day < window0) window0 = day;
+      if (day > window1) window1 = day;
+      c.days.add(day); if (frp > c.maxFrp) c.maxFrp = frp;
       rows.push({ lat, lon, frp, ageH, key, seed: (i * .618034) % 1, land: isLand(lat, lon) });
     }
     // pass 2: split by behavior, not cause (satellites can't see who lit it).
@@ -522,7 +529,10 @@ async function loadFires(isLand) {
     }
     const active = firePts.length;
     addVolcanoMarkers(firePts);
-    sub.textContent = 'nasa firms · modis · rolling 7 days · volcano markers static';
+    // dating the header means a screenshot carries its own timestamp
+    const fmt = (d) => new Date(d * 864e5).toLocaleDateString('en-GB',
+      { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+    sub.textContent = `nasa firms · modis · ${fmt(window0)} – ${fmt(window1)} utc`;
     return { firePts, burntPts, statsHtml:
       `<div class="row"><span>active &middot; 24 h</span><b>${active.toLocaleString()}</b></div>` +
       `<div class="row"><span>older &middot; 7 days</span><b>${burntPts.length.toLocaleString()}</b></div>` +
